@@ -1,0 +1,15 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I/usr/include/lua5.4",
+      "-o",
+      "mooncon",
+      "main.c"
+    ],
+    "directory": "/home/catilac/Code/mooncon",
+    "file": "/home/catilac/Code/mooncon/main.c",
+    "output": "/home/catilac/Code/mooncon/mooncon"
+  }
+]
