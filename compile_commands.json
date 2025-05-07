@@ -4,6 +4,10 @@
       "/usr/bin/gcc",
       "-c",
       "-I/usr/include/lua5.4",
+      "-I/usr",
+      "-I/usr/local/include/SDL3",
+      "-Wl,-rpath,/usr/local/lib",
+      "-Wl,--enable-new-dtags",
       "-o",
       "mooncon",
       "main.c"
