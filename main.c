@@ -6,19 +6,56 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
-int mult(lua_State *L)
-{
-   int a = luaL_checkinteger(L, 1);
-   int b = luaL_checkinteger(L, 2);
-   lua_Integer c = a * b;
-
-   lua_pushinteger(L, c);
-   return 1;
-}
-
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 static lua_State *L = NULL;
+
+int clear(lua_State *L)
+{
+   uint8_t r = luaL_checkinteger(L, 1);
+   uint8_t g = luaL_checkinteger(L, 2);
+   uint8_t b = luaL_checkinteger(L, 3);
+
+   SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+   SDL_RenderClear(renderer);
+
+   return 1;
+}
+
+int color(lua_State *L)
+{
+   uint8_t r = luaL_checkinteger(L, 1);
+   uint8_t g = luaL_checkinteger(L, 2);
+   uint8_t b = luaL_checkinteger(L, 3);
+
+   SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+
+   return 1;
+}
+
+int text(lua_State *L)
+{
+   const char *str = luaL_checkstring(L, 1);
+   if (!str)
+   {
+      return -1;
+   }
+
+   int w = 0, h = 0;
+   float x, y;
+   const float scale = 4.0f;
+
+   /* Center the message and scale it up */
+   SDL_GetRenderOutputSize(renderer, &w, &h);
+   SDL_SetRenderScale(renderer, scale, scale);
+   x = ((w / scale) - SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE * SDL_strlen(str)) / 2;
+   y = ((h / scale) - SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE) / 2;
+
+   /* Draw the message */
+   SDL_RenderDebugText(renderer, x, y, str);
+
+   return 1;
+}
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
@@ -27,9 +64,20 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
    L = luaL_newstate();
    luaL_openlibs(L);
 
-   lua_pushcfunction(L, mult);
-   lua_setglobal(L, "mult");
+   lua_pushnumber(L, 800);
+   lua_setglobal(L, "width");
 
+   lua_pushnumber(L, 600);
+   lua_setglobal(L, "height");
+
+   lua_pushcfunction(L, clear);
+   lua_setglobal(L, "clear");
+
+   lua_pushcfunction(L, text);
+   lua_setglobal(L, "text");
+
+   lua_pushcfunction(L, color);
+   lua_setglobal(L, "color");
 
    /* Window */
    if (!SDL_CreateWindowAndRenderer("MoonCon", 800, 600, SDL_WINDOW_FULLSCREEN, &window, &renderer)) {
@@ -50,32 +98,14 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-
-
    // work with api here
-   char *code = "print('Hello, MoonCon User!')\nprint(mult(4, 2))";
+   char *code = "clear(255, 255, 255)\ncolor(200, 150, 25)\ntext('Hello, MoonCon User!', 1)";
 
    if (luaL_dostring(L, code) == LUA_OK)
    {
       lua_pop(L, lua_gettop(L));
    }
 
-   const char *message = "Hello World!";
-   int w = 0, h = 0;
-   float x, y;
-   const float scale = 4.0f;
-
-   /* Center the message and scale it up */
-   SDL_GetRenderOutputSize(renderer, &w, &h);
-   SDL_SetRenderScale(renderer, scale, scale);
-   x = ((w / scale) - SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE * SDL_strlen(message)) / 2;
-   y = ((h / scale) - SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE) / 2;
-
-   /* Draw the message */
-   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-   SDL_RenderClear(renderer);
-   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-   SDL_RenderDebugText(renderer, x, y, message);
    SDL_RenderPresent(renderer);
 
    return SDL_APP_CONTINUE;
