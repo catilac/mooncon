@@ -97,13 +97,24 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
    lua_pushcfunction(L, color);
    lua_setglobal(L, "color");
 
+   if (luaL_dofile(L, "./prog.lua") == LUA_OK)
+   {
+      printf("prog.lua: OK");
+   } else { 
+      luaL_error(L, "Error: %s\n", lua_tostring(L, -1));
+   }
+
    /* Window */
    if (!SDL_CreateWindowAndRenderer("MoonCon", 800, 600, SDL_WINDOW_FULLSCREEN, &window, &renderer)) {
       SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
       return SDL_APP_FAILURE;
    }
 
-   /* TODO: Call the init() function defined in the lua code */
+   /* Call Init() */
+   lua_getglobal(L, "init");
+   if (lua_pcall(L, 0, 0, 0) != 0) {
+      printf("ERROR calling init\n");
+   }
 
    return SDL_APP_CONTINUE;
 }
@@ -119,19 +130,15 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-   char *code = "\
-      clear(55, 55, 225) \
-      color(200, 150, 25) \
-      text('Hello, MoonCon User!', 1) \
-      rect(40, 40, 15)";
 
-   if (luaL_dostring(L, code) == LUA_OK)
-   {
-      lua_pop(L, lua_gettop(L));
+   lua_getglobal(L, "update");
+   if (lua_pcall(L, 0, 0, 0) != 0) {
+      printf("ERROR calling update\n");
    }
-
-   /* TODO Call update() in lua */
-   /* TODO Call draw() in lua */
+   lua_getglobal(L, "draw");
+   if (lua_pcall(L, 0, 0, 0) != 0) {
+      printf("ERROR calling draw\n");
+   }
 
    SDL_RenderPresent(renderer);
 
