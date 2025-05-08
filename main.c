@@ -33,6 +33,21 @@ int color(lua_State *L)
    return 1;
 }
 
+int rect(lua_State *L)
+{
+   float xpos = luaL_checkinteger(L, 1);
+   float ypos = luaL_checkinteger(L, 2);
+   float size = luaL_checkinteger(L, 3);
+
+   SDL_FRect r;
+   r.x = xpos;
+   r.y = ypos;
+   r.w = r.h = size * 4.0f; // TODO: Figure out global scale for our coordinate system
+   SDL_RenderFillRect(renderer, &r);
+
+   return 1;
+}
+
 int text(lua_State *L)
 {
    const char *str = luaL_checkstring(L, 1);
@@ -76,6 +91,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
    lua_pushcfunction(L, text);
    lua_setglobal(L, "text");
 
+   lua_pushcfunction(L, rect);
+   lua_setglobal(L, "rect");
+
    lua_pushcfunction(L, color);
    lua_setglobal(L, "color");
 
@@ -84,6 +102,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
       SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
       return SDL_APP_FAILURE;
    }
+
+   /* TODO: Call the init() function defined in the lua code */
+
    return SDL_APP_CONTINUE;
 }
 
@@ -98,13 +119,19 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-   // work with api here
-   char *code = "clear(255, 255, 255)\ncolor(200, 150, 25)\ntext('Hello, MoonCon User!', 1)";
+   char *code = "\
+      clear(55, 55, 225) \
+      color(200, 150, 25) \
+      text('Hello, MoonCon User!', 1) \
+      rect(40, 40, 15)";
 
    if (luaL_dostring(L, code) == LUA_OK)
    {
       lua_pop(L, lua_gettop(L));
    }
+
+   /* TODO Call update() in lua */
+   /* TODO Call draw() in lua */
 
    SDL_RenderPresent(renderer);
 
