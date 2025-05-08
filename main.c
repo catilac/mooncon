@@ -35,9 +35,9 @@ int color(lua_State *L)
 
 int rect(lua_State *L)
 {
-   float xpos = luaL_checkinteger(L, 1);
-   float ypos = luaL_checkinteger(L, 2);
-   float size = luaL_checkinteger(L, 3);
+   float xpos = lua_tonumber(L, 1);
+   float ypos = lua_tonumber(L, 2);
+   float size = lua_tonumber(L, 3);
 
    SDL_FRect r;
    r.x = xpos;
@@ -137,7 +137,9 @@ SDL_AppResult SDL_AppIterate(void *appstate)
    }
    lua_getglobal(L, "draw");
    if (lua_pcall(L, 0, 0, 0) != 0) {
-      printf("ERROR calling draw\n");
+      const char *error = lua_tostring(L, -1);
+      fprintf(stderr, "Error running draw: %s\n", error);
+      lua_pop(L, 1); // remove error message
    }
 
    SDL_RenderPresent(renderer);

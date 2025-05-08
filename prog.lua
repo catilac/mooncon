@@ -2,10 +2,12 @@
 
 function init()
    size = 15
+   t = 0
 end
 
 function update()
-   print('update')
+   t = t + 0.01
+   size = 15 * math.sin(t);
 end
 
 function draw()
