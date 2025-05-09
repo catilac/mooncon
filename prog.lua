@@ -15,4 +15,7 @@ function draw()
    color(200, 150, 25)
    text('Hello, MoonCon User!', 1)
    rect(40, 40, size)
+
+   color(40, 240, 120)
+   rect(50 + math.cos(t) * 15, 50 + math.sin(t) * 24, 10);
 end
