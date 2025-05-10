@@ -8,13 +8,11 @@
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
-
    MoonContext *ctx = MoonContextInit();
    if (!ctx)
       return SDL_APP_FAILURE;
 
    *appstate = ctx;
-
 
    /* Window */
    if (!SDL_CreateWindowAndRenderer("MoonCon", 
@@ -37,8 +35,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
    if (event->type == SDL_EVENT_KEY_DOWN ||
-         event->type == SDL_EVENT_QUIT) {
-      return SDL_APP_SUCCESS;  /* end the program, reporting success to the OS. */
+       event->type == SDL_EVENT_QUIT) 
+   {
+      return SDL_APP_SUCCESS;
    }
    return SDL_APP_CONTINUE;
 }
@@ -50,8 +49,9 @@ SDL_AppResult SDL_AppIterate(void *appstate)
    if (iLuaCallFunc(ctx->L, "update") != 0) {
       printf("ERROR calling update\n");
    }
-   lua_getglobal(ctx->L, "draw");
-   if (lua_pcall(ctx->L, 0, 0, 0) != 0) {
+
+   if (iLuaCallFunc(ctx->L, "draw") != 0)
+   {
       const char *error = lua_tostring(ctx->L, -1);
       fprintf(stderr, "Error running draw: %s\n", error);
       lua_pop(ctx->L, 1); // remove error message
