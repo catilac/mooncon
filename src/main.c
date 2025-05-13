@@ -2,8 +2,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
-#include <stdio.h>
-
 #include "moon_context.h"
 #include "ilua.h"
 #include "editbox.h"
@@ -12,29 +10,6 @@ static EditBox *editor = NULL;
 static TTF_Font *font = NULL;
 static SDL_Surface *window_surface = NULL;
 static SDL_FRect editRect = {50, 50, 200, 150};
-
-// TODO: put this somewhere out of the way, maybe just read
-// from `prog.lua` or something.
-const char *init_program = "\
-function init()\n \
-\tsize = 15\n \
-\tt = 0\n \
-end\n \
-\n \
-function update()\n \
-\tt = t + 0.01\n \
-\tsize = 15 * math.sin(t);\n \
-end\n \
-\n \
-function draw()\n \
-\tclear(55, 55, 225)\n \
-\tcolor(200, 150, 25)\n \
-\ttext('Hello, MoonCon User!', 1)\n \
-\trect(40, 40, size)\n \
-\n \
-\tcolor(40, 240, 120)\n \
-\trect(50 + math.cos(t*5) * 15, 50 + math.sin(t*8) * 24, 10);\n \
-end";
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
@@ -66,11 +41,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
                            TTF_CreateRendererTextEngine(ctx->renderer),
                            font, &editRect);
    EditBox_SetFocus(editor, true);
-   EditBox_Insert(editor, init_program);
+   EditBox_Insert(editor, "OK this needs to come from a central location");
 
    /* Call Init() */
    if (iLuaCallFunc(ctx->L, "init") != 0) {
-      printf("ERROR calling init\n");
+      SDL_Log("ERROR calling init\n");
       return SDL_APP_FAILURE;
    }
 
@@ -79,6 +54,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
+   MoonContext *ctx = (MoonContext *)appstate;
+   SDL_ConvertEventToRenderCoordinates(ctx->renderer, event);
+
    switch (event->type)
    {
       case SDL_EVENT_KEY_DOWN:
@@ -99,13 +77,13 @@ SDL_AppResult SDL_AppIterate(void *appstate)
    MoonContext *ctx = (MoonContext *)appstate;
 
    if (iLuaCallFunc(ctx->L, "update") != 0) {
-      printf("ERROR calling update\n");
+      SDL_Log("ERROR calling update\n");
    }
 
    if (iLuaCallFunc(ctx->L, "draw") != 0)
    {
       const char *error = lua_tostring(ctx->L, -1);
-      fprintf(stderr, "Error running draw: %s\n", error);
+      SDL_Log("Error running draw: %s\n", error);
       lua_pop(ctx->L, 1); // remove error message
    }
 
