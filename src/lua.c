@@ -1,9 +1,9 @@
-#include "ilua.h"
+#include "lua.h"
 #include "moonlang.h"
 
 static char *moon_context_key;
 
-int iLuaInit(MoonContext *ctx)
+int Lua_Init(MoonContext *ctx)
 {
    ctx->L = luaL_newstate();
    luaL_openlibs(ctx->L);
@@ -30,23 +30,31 @@ int iLuaInit(MoonContext *ctx)
    lua_pushcfunction(ctx->L, color);
    lua_setglobal(ctx->L, "color");
 
-   if (luaL_dofile(ctx->L, "./prog.lua") == LUA_OK)
-   {
-      printf("prog.lua: OK");
-   } else { 
+   if (luaL_dostring(ctx->L, ctx->program) == LUA_OK)
+      SDL_Log("prog.lua: OK");
+   else
       luaL_error(ctx->L, "Error: %s\n", lua_tostring(ctx->L, -1));
-   }
 
    return 0;
 }
 
-int iLuaCallFunc(lua_State *L, const char *funcName)
+int Lua_Call(lua_State *L, const char *funcName)
 {
    lua_getglobal(L, funcName);
    return lua_pcall(L, 0, 0, 0);
 }
 
-MoonContext *getMoonContext(lua_State *L)
+int Lua_Reload(MoonContext *ctx)
+{
+   // TODO: The Init, Update, Draw cycle
+   // might be better encapsulated.
+   lua_close(ctx->L);
+   Lua_Init(ctx);
+   Lua_Call(ctx->L, "init");
+   return 0;
+}
+
+MoonContext *Lua_GetCtx(lua_State *L)
 {
    lua_pushlightuserdata(L, (void *)&moon_context_key);
    lua_gettable(L, LUA_REGISTRYINDEX);

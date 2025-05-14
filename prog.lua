@@ -17,5 +17,5 @@ function draw()
    rect(40, 40, size)
 
    color(40, 240, 120)
-   rect(50 + math.cos(t) * 15, 50 + math.sin(t) * 24, 10);
+   rect(50 + math.cos(t*5) * 15, 50 + math.sin(t*8) * 24, 10);
 end
