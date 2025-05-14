@@ -8,7 +8,6 @@
 
 static EditBox *editor = NULL;
 static TTF_Font *font = NULL;
-static SDL_Surface *window_surface = NULL;
 static SDL_FRect editRect = {50, 50, 200, 150};
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -27,8 +26,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
       SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
       return SDL_APP_FAILURE;
    }
-
-   window_surface = SDL_GetWindowSurface(ctx->window);
 
    TTF_Init();
    font = TTF_OpenFont("fonts/Kobold.ttf", 24.0f);
