@@ -1,5 +1,5 @@
 #include "moonlang.h"
-#include "ilua.h"
+#include "lua.h"
 
 #include <lua.h>
 #include <lualib.h>
@@ -13,7 +13,7 @@ int clear(lua_State *L)
    uint8_t g = luaL_checkinteger(L, 2);
    uint8_t b = luaL_checkinteger(L, 3);
 
-   MoonContext *ctx = getMoonContext(L);
+   MoonContext *ctx = Lua_GetCtx(L);
 
    SDL_SetRenderDrawColor(ctx->renderer, r, g, b, 255);
    SDL_RenderClear(ctx->renderer);
@@ -27,7 +27,7 @@ int color(lua_State *L)
    uint8_t g = luaL_checkinteger(L, 2);
    uint8_t b = luaL_checkinteger(L, 3);
 
-   MoonContext *ctx = getMoonContext(L);
+   MoonContext *ctx = Lua_GetCtx(L);
 
    SDL_SetRenderDrawColor(ctx->renderer, r, g, b, 255);
 
@@ -45,7 +45,7 @@ int rect(lua_State *L)
    r.y = ypos;
    r.w = r.h = size * 4.0f; // TODO: Figure out global scale for our coordinate system
                             //
-   MoonContext *ctx = getMoonContext(L);
+   MoonContext *ctx = Lua_GetCtx(L);
 
    SDL_RenderFillRect(ctx->renderer, &r);
 
@@ -64,7 +64,7 @@ int text(lua_State *L)
    float x, y;
    const float scale = 4.0f;
 
-   MoonContext *ctx = getMoonContext(L);
+   MoonContext *ctx = Lua_GetCtx(L);
 
    /* Center the message and scale it up */
    SDL_GetRenderOutputSize(ctx->renderer, &w, &h);

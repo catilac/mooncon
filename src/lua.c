@@ -1,4 +1,4 @@
-#include "ilua.h"
+#include "lua.h"
 #include "moonlang.h"
 
 static char *moon_context_key;
@@ -27,7 +27,7 @@ function draw()\n \
 end";
 
 
-int iLuaInit(MoonContext *ctx)
+int Lua_Init(MoonContext *ctx)
 {
    ctx->L = luaL_newstate();
    luaL_openlibs(ctx->L);
@@ -64,13 +64,13 @@ int iLuaInit(MoonContext *ctx)
    return 0;
 }
 
-int iLuaCallFunc(lua_State *L, const char *funcName)
+int Lua_Call(lua_State *L, const char *funcName)
 {
    lua_getglobal(L, funcName);
    return lua_pcall(L, 0, 0, 0);
 }
 
-MoonContext *getMoonContext(lua_State *L)
+MoonContext *Lua_GetCtx(lua_State *L)
 {
    lua_pushlightuserdata(L, (void *)&moon_context_key);
    lua_gettable(L, LUA_REGISTRYINDEX);

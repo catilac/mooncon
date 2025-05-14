@@ -1,5 +1,5 @@
 #include "moon_context.h"
-#include "ilua.h"
+#include "lua.h"
 
 MoonContext *MoonContextInit()
 {
@@ -8,7 +8,7 @@ MoonContext *MoonContextInit()
       return NULL;
    }
 
-   iLuaInit(ctx);
+   Lua_Init(ctx);
    
    return ctx;
 }

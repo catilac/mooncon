@@ -3,7 +3,7 @@
 #include <SDL3/SDL_main.h>
 
 #include "moon_context.h"
-#include "ilua.h"
+#include "lua.h"
 #include "editbox.h"
 
 static EditBox *editor = NULL;
@@ -41,7 +41,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
    EditBox_Insert(editor, "OK this needs to come from a central location");
 
    /* Call Init() */
-   if (iLuaCallFunc(ctx->L, "init") != 0) {
+   if (Lua_Call(ctx->L, "init") != 0) {
       SDL_Log("ERROR calling init\n");
       return SDL_APP_FAILURE;
    }
@@ -73,11 +73,11 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 {
    MoonContext *ctx = (MoonContext *)appstate;
 
-   if (iLuaCallFunc(ctx->L, "update") != 0) {
+   if (Lua_Call(ctx->L, "update") != 0) {
       SDL_Log("ERROR calling update\n");
    }
 
-   if (iLuaCallFunc(ctx->L, "draw") != 0)
+   if (Lua_Call(ctx->L, "draw") != 0)
    {
       const char *error = lua_tostring(ctx->L, -1);
       SDL_Log("Error running draw: %s\n", error);
