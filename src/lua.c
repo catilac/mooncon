@@ -46,8 +46,11 @@ int Lua_Call(lua_State *L, const char *funcName)
 
 int Lua_Reload(MoonContext *ctx)
 {
+   // TODO: The Init, Update, Draw cycle
+   // might be better encapsulated.
    lua_close(ctx->L);
    Lua_Init(ctx);
+   Lua_Call(ctx->L, "init");
    return 0;
 }
 
