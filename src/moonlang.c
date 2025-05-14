@@ -68,7 +68,7 @@ int text(lua_State *L)
 
    /* Center the message and scale it up */
    SDL_GetRenderOutputSize(ctx->renderer, &w, &h);
-   SDL_SetRenderScale(ctx->renderer, scale, scale);
+   //SDL_SetRenderScale(ctx->renderer, scale, scale);
    x = ((w / scale) - SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE * SDL_strlen(str)) / 2;
    y = ((h / scale) - SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE) / 2;
 

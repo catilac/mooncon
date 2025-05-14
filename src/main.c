@@ -8,7 +8,7 @@
 
 static EditBox *editor = NULL;
 static TTF_Font *font = NULL;
-static SDL_FRect editRect = {50, 50, 200, 150};
+static SDL_FRect editRect = {400, 0, 400, 600};
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
@@ -20,7 +20,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
    /* Window */
    if (!SDL_CreateWindowAndRenderer("MoonCon", 
-                                    800, 600, SDL_WINDOW_FULLSCREEN,
+                                    800, 600, 0,
                                     &ctx->window, &ctx->renderer))
    {
       SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
@@ -89,7 +89,8 @@ SDL_AppResult SDL_AppIterate(void *appstate)
       lua_pop(ctx->L, 1); // remove error message
    }
 
-   SDL_RenderRect(ctx->renderer, &editRect);
+   SDL_SetRenderDrawColor(ctx->renderer, 0xCC, 0xCC, 0xCC, 0xFF);
+   SDL_RenderFillRect(ctx->renderer, &editRect);
    TTF_SetTextColor(editor->text, 0, 0, 0, 255);
    EditBox_Draw(editor);
 
