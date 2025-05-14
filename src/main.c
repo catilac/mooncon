@@ -21,7 +21,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
    /* Window */
    if (!SDL_CreateWindowAndRenderer("MoonCon", 
-                                    800, 600, 0/*SDL_WINDOW_FULLSCREEN*/,
+                                    800, 600, SDL_WINDOW_FULLSCREEN,
                                     &ctx->window, &ctx->renderer))
    {
       SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
