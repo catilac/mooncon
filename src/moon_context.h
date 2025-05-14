@@ -8,6 +8,7 @@ typedef struct MoonContext {
    SDL_Window *window;
    SDL_Renderer *renderer;
    lua_State *L;
+   const char *program;
 } MoonContext;
 
 

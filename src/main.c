@@ -38,7 +38,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
                            TTF_CreateRendererTextEngine(ctx->renderer),
                            font, &editRect);
    EditBox_SetFocus(editor, true);
-   EditBox_Insert(editor, "OK this needs to come from a central location");
+   EditBox_Insert(editor, ctx->program);
 
    /* Call Init() */
    if (Lua_Call(ctx->L, "init") != 0) {
@@ -57,7 +57,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
    switch (event->type)
    {
       case SDL_EVENT_KEY_DOWN:
-         EditBox_HandleEvent(editor, event);
+         if (event->key.key == SDLK_R && (event->key.mod & SDL_KMOD_CTRL))
+            Lua_Reload(ctx);
+         else
+            EditBox_HandleEvent(editor, event);
          break;
       case SDL_EVENT_QUIT:
          return SDL_APP_SUCCESS;
@@ -65,6 +68,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
          EditBox_HandleEvent(editor, event);
          break;
    }
+
+   ctx->program = editor->text->text;
 
    return SDL_APP_CONTINUE;
 }
