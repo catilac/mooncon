@@ -28,3 +28,6 @@ make
 ```
 
 Font is https://github.com/jessechen/bubbletea
+
+# NOTE
+Talk = 0.333*ForMe + 0.333*ForExperienceAudience + 0.333 * GeneralAudience
