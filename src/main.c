@@ -3,12 +3,20 @@
 #include <SDL3/SDL_main.h>
 
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "moon_context.h"
 #include "lua.h"
 #include "editbox.h"
 
-#define DISPLAY_SIZE 1024
+#define DISPLAY_SIZE 2048
+
+SDL_Color palette[4] = {
+    {0, 0, 0, 255},
+    {255, 0, 0, 255},
+    {0, 255, 0, 255},
+    {255, 255, 255, 255},
+};
 
 static uint8_t moondisplay[DISPLAY_SIZE];
 static SDL_Texture *displayTex = NULL;
@@ -34,12 +42,20 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
       return SDL_APP_FAILURE;
    }
 
-   memset(moondisplay, 0, DISPLAY_SIZE * sizeof(uint8_t));
+   // initialize display with random values
+   for (int i=0;i<DISPLAY_SIZE;i++)
+   {
+      uint8_t high = (rand() % 4) << 4;
+      uint8_t low = (rand() % 4);
+      moondisplay[i] = high | low;
+   }
+
    displayTex = SDL_CreateTexture(
                   ctx->renderer, 
                   SDL_PIXELFORMAT_RGBA8888,
                   SDL_TEXTUREACCESS_STREAMING,
                   64, 64);
+   SDL_SetTextureScaleMode(displayTex, SDL_SCALEMODE_NEAREST);
 
    TTF_Init();
    font = TTF_OpenFont("fonts/Kobold.ttf", 24.0f);
@@ -113,14 +129,25 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
    if (SDL_LockTexture(displayTex, NULL, (void **) &pixels, &pitch))
    {
-      // TODO: get color out of memory
-      // write out the pixel data from display memory
-      for (int i = 0; i < (64 * 64); i++)
+      int pixelIdx = 0;
+      for (int i = 0; i < DISPLAY_SIZE; i++)
       {
-         pixels[i] = SDL_MapRGB(
+         uint8_t byte = moondisplay[i];
+         uint8_t highByte = (byte >> 4) & 0x0F;
+         uint8_t lowByte = byte & 0x0F;
+
+         SDL_Color c1 = palette[highByte];
+         SDL_Color c2 = palette[lowByte];
+
+         pixels[pixelIdx++] = SDL_MapRGB(
                SDL_GetPixelFormatDetails(SDL_PIXELFORMAT_RGBA8888),
-               NULL, 44, 25, 120);
+               NULL, c1.r, c1.g, c1.b);
+
+         pixels[pixelIdx++] = SDL_MapRGB(
+               SDL_GetPixelFormatDetails(SDL_PIXELFORMAT_RGBA8888),
+               NULL, c2.r, c2.g, c2.b);
       }
+
       SDL_UnlockTexture(displayTex);
    }
 
