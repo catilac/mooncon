@@ -1,6 +1,5 @@
 # MoonCon Architecture
 
-
 ## TIC-80
 ```
 DISPLAY     240x136 pixels, 16 colors palette.
@@ -9,6 +8,17 @@ SPRITES     256 8x8 tiles and 256 8x8 sprites.
 MAP         240x136 cells, 1920x1088 pixels.
 SOUND       4 channels with configurable waveforms.
 CODE        64KB of lua, ruby, js, moon, fennel, scheme, squirrel, wren, wasm, janet or python.
+```
+
+## CHIP-8
+```
+DISPLAY    64x32 monochrome  
+CART SIZE  ~3584 bytes usable  
+SOUND      1 channel buzzer  
+CODE       Hex opcodes (interpreter-driven)  
+CPU        ~500 Hz (on original 1970s hardware)  
+SPRITES    16 built-in (4x5 px) + custom XORed to screen  
+MAP        N/A (manual tile handling via memory)
 ```
 
 ## PICO-8
