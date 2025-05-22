@@ -11,11 +11,23 @@
 
 #define DISPLAY_SIZE 2048
 
-SDL_Color palette[4] = {
-    {0, 0, 0, 255},
-    {255, 0, 0, 255},
-    {0, 255, 0, 255},
-    {255, 255, 255, 255},
+SDL_Color palette[16] = {
+    {7, 3, 4, 255},       // #070304
+    {50, 45, 76, 255},    // #322d4c
+    {30, 58, 45, 255},    // #1e3a2d
+    {61, 47, 91, 255},    // #3d2f5b
+    {65, 48, 99, 255},    // #413063
+    {59, 66, 62, 255},    // #3b423e
+    {29, 73, 63, 255},    // #1c493f
+    {81, 105, 109, 255},  // #51696d
+    {89, 127, 86, 255},   // #597f56
+    {145, 42, 100, 255},  // #912a64
+    {201, 68, 110, 255},  // #c9446e
+    {229, 73, 99, 255},   // #e54963
+    {198, 73, 188, 255},  // #c649bc
+    {120, 105, 234, 255}, // #7869ea
+    {125, 198, 151, 255}, // #7dc697
+    {218, 226, 234, 255}, // #dae2ea
 };
 
 static uint8_t moondisplay[DISPLAY_SIZE];
@@ -45,8 +57,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
    // initialize display with random values
    for (int i=0;i<DISPLAY_SIZE;i++)
    {
-      uint8_t high = (rand() % 4) << 4;
-      uint8_t low = (rand() % 4);
+      uint8_t high = (rand() % 16) << 4;
+      uint8_t low = (rand() % 16);
       moondisplay[i] = high | low;
    }
 
@@ -123,6 +135,22 @@ SDL_AppResult SDL_AppIterate(void *appstate)
    // SDL_RenderFillRect(ctx->renderer, &editRect);
    // TTF_SetTextColor(editor->text, 0, 0, 0, 255);
    // EditBox_Draw(editor);
+
+   /* 
+    *
+    * RUN A HARDWARE CYCLE
+    * * */
+   // 1. get next instruction type stuff
+   // 2. cpu run the instruction
+   // 3. ppu stuff might be the code below:
+
+
+   for (int i=0;i<DISPLAY_SIZE;i++)
+   {
+      uint8_t high = (rand() % 16) << 4;
+      uint8_t low = (rand() % 16);
+      moondisplay[i] = high | low;
+   }
 
    Uint32 *pixels = NULL;
    int pitch;
