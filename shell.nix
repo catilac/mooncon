@@ -10,6 +10,17 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-    echo "Welcome to the MoonCon dev environment!"
-  '';
+   echo "__   __   ___     ___   __    _"
+   echo "|    |  .'   \`. .'   \`. |\\   |"
+   echo "|\\  /|  |     | |     | | \\  |"
+   echo "| \\/ |  |     | |     | |  \\ |"
+   echo "/    /   \`.__.'  \`.__.' |   \\|"
+   echo "                              "
+   echo "                      ___    ___   __    _"
+   echo "                    .'   \\ .'   \`. |\\   |"
+   echo "                    |      |     | | \\  |"
+   echo "                    |      |     | |  \\ |"
+   echo "                     \`.__,  \`.__.' |   \\|"
+'';
+
 }
