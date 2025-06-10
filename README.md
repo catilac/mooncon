@@ -26,3 +26,5 @@ nix-shell shell.nix
 make
 ./mooncon
 ```
+
+Font is https://github.com/jessechen/bubbletea
