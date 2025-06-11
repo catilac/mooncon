@@ -28,7 +28,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
    }
 
    TTF_Init();
-   font = TTF_OpenFont("fonts/Kobold.ttf", 24.0f);
+   font = TTF_OpenFont("fonts/bubbletea.ttf", 24.0f);
    if (!font) {
       SDL_Log("Font: %s\n", SDL_GetError());
       return SDL_APP_FAILURE;
