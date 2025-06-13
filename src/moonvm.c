@@ -1,7 +1,7 @@
 #include "moonvm.h"
 #include <stdio.h>
 
-typedef enum _Op
+typedef enum Op
 {
    NOP,
    ADD, // Add -- add r1, r0, r3
@@ -9,10 +9,11 @@ typedef enum _Op
    ST, // store register contents into memory -- st $0xFFFF, r15
    CLS, // clear screen -- cls
    SPX, // set a pixel --  spx 0x4 x y
+   JMP, // JMP
    HALT, // halt program
 } Op;
 
-typedef struct _instruction
+typedef struct Instruction
 {
    Op op;
    u8 dest;
@@ -32,14 +33,13 @@ MoonVM *MoonVM_init()
    // any other initialization goes here
    // add a program here
    vm->mem[0] = 0x4000; // cls ; clear screen
-   vm->mem[1] = 0x243F; // ld r4, 0x04
-   vm->mem[2] = 0x213F; // ld r1, 0x04
-   vm->mem[3] = 0x1C41; // add r12, r4, r1
-   vm->mem[4] = 0x30AB; // st 0x0 0x02 
-   vm->mem[5] = 0x31CD; // st 0x2 0x02 
-   vm->mem[6] = 0x32EF; // st 0x5 0x02 
-   vm->mem[7] = 0x5A41; // spx 0x5, 0x41
-   vm->mem[8] = 0xF000; // HALT
+   vm->mem[1] = 0x2400; // ld r4, 0x00
+   vm->mem[2] = 0x2100; // ld r1, 0x00
+   vm->mem[3] = 0x2701; // ld r7, 0x01
+   vm->mem[4] = 0x1447; // add r4, r4, r7
+   vm->mem[5] = 0x1117; // add r1, r1, r7
+   vm->mem[6] = 0x5A41; // spx 0x5, 0x4 0x1
+   vm->mem[7] = 0x6004; // JMP 4
    vm->pc = 0; 
    return vm;
 }
@@ -98,6 +98,9 @@ Instruction _decode(u16 bytecode)
       case 0x05:
          op = SPX;
          break;
+      case 0x06:
+         op = JMP;
+         break;
       case 0x0F:
          op = HALT;
          break;
@@ -154,6 +157,12 @@ void _spx(MoonVM *vm, u8 col, u8 xreg, u8 yreg)
    vm->mem[VRAM + offset] = byte;
 }
 
+void _jmp(MoonVM *vm, u8 dest, u8 hn, u8 ln)
+{
+   u8 address = (hn << 4 & 0xF0) | ln;
+   vm->pc = address;
+}
+
 void _execute(MoonVM *vm, Instruction i)
 {
    printf("DEBUG: Instruction { op=(%d), dest=(%d), hn=(%d), ln=(%d)\n", i.op, i.dest, i.hn, i.ln);
@@ -175,6 +184,9 @@ void _execute(MoonVM *vm, Instruction i)
          break;
       case CLS:
          _cls(vm);
+         break;
+      case JMP:
+         _jmp(vm, i.dest, i.hn, i.ln);
          break;
       case HALT:
          vm->isHalt = true;
