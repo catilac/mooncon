@@ -30,4 +30,16 @@ void cls(MoonVM *vm);
 void spx(MoonVM *vm, u8 col, u8 xreg, u8 yreg);
 void jmp(MoonVM *vm, u8 dest, u8 hn, u8 ln);
 
+
+//void cmp(MoonVM *vm, u8 dest, u8 hn, u8 ln);
+//void indx(MoonVM *vm, u8 dest, u8 hn, u8 ln);
+//void sub(MoonVM *vm, u8 dest, u8 hn, u8 ln);
+
+//void call(MoonVM *vm, u8 dest, u8 hn, u8 ln);
+
+// Stack
+// void push(MoonVM *vm, u8 dest, u8 hn, u8 ln);
+// void pop(MoonVM *vm, u8 dest, u8 hn, u8 ln);
+
+
 #endif
