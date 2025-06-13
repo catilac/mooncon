@@ -1,29 +1,10 @@
 #include "moonvm.h"
+#include "masm.h"
 #include <stdio.h>
 
-typedef enum Op
-{
-   NOP,
-   ADD, // Add -- add r1, r0, r3
-   LD, // load into register -- ld r15, 0xFF
-   ST, // store register contents into memory -- st $0xFFFF, r15
-   CLS, // clear screen -- cls
-   SPX, // set a pixel --  spx 0x4 x y
-   JMP, // JMP
-   HALT, // halt program
-} Op;
-
-typedef struct Instruction
-{
-   Op op;
-   u8 dest;
-   u8 hn; // high nibble
-   u8 ln; // low nibble
-} Instruction;
-
-u16 _fetch(MoonVM *);
-Instruction _decode(u16);
-void _execute(MoonVM *, Instruction);
+u16 fetch(MoonVM *);
+Instruction decode(u16);
+void execute(MoonVM *, Instruction);
 
 MoonVM *MoonVM_init()
 {
@@ -44,7 +25,18 @@ MoonVM *MoonVM_init()
    return vm;
 }
 
-void _dump(MoonVM *vm)
+void MoonVM_fde_cycle(MoonVM *vm)
+{
+   // Fetch - get instruction from memory at current PC
+   u16 word = fetch(vm);
+   // Decode - decode instruction
+   Instruction i = decode(word);
+   
+   // Execute - execute the decoded instruction
+   execute(vm, i);
+}
+
+void MoonVM_dump(MoonVM *vm)
 {
    printf("REGISTERS: \n");
    for (int i = 0; i < 16; i++)
@@ -54,25 +46,12 @@ void _dump(MoonVM *vm)
       printf("%02x ", vm->mem[VRAM+i]);
 }
 
-void MoonVM_fde_cycle(MoonVM *vm)
+u16 fetch(MoonVM *vm)
 {
-   // Fetch - get instruction from memory at current PC
-   u16 word = _fetch(vm);
-   // Decode - decode instruction
-   Instruction i = _decode(word);
-   
-   // Execute - execute the decoded instruction
-   _execute(vm, i);
+   return vm->mem[vm->pc++];
 }
 
-u16 _fetch(MoonVM *vm)
-{
-   u16 bytecode = vm->mem[vm->pc++];
-   printf("pc: %d -- \t", vm->pc);
-   return bytecode;
-}
-
-Instruction _decode(u16 bytecode)
+Instruction decode(u16 bytecode)
 {
    Instruction i = {};
    // 0000 0000 0000 0000
@@ -116,86 +95,36 @@ Instruction _decode(u16 bytecode)
    return i;
 }
 
-void _add(MoonVM *vm, u8 dest, u8 hn, u8 ln)
+void execute(MoonVM *vm, Instruction i)
 {
-   vm->reg[dest] = vm->reg[hn] + vm->reg[ln];
-}
-
-void _ld(MoonVM *vm, u8 dest, u8 hn, u8 ln)
-{
-   printf("ld r%d 0x%d%d -- ", dest, hn, ln);
-
-   vm->reg[dest] = (hn << 4) | ln;
-
-   printf("%04x\n", vm->reg[dest]);
-
-}
-
-void _st(MoonVM *vm, u8 dest, u8 hn, u8 ln)
-{
-   printf("st %04x %02x%02x -- ", dest, hn, ln);
-   vm->mem[VRAM + dest] = (hn << 4) | ln;
-}
-
-void _cls(MoonVM *vm)
-{
-   for (int i = 0; i < DISPLAY_SIZE; i++)
-      vm->mem[VRAM+i] = 0;
-};
-
-void _spx(MoonVM *vm, u8 col, u8 xreg, u8 yreg)
-{
-   u8  x = vm->reg[xreg];
-   u8  y = vm->reg[yreg];
-   u16  offset = (x + y * 64)/2;
-   u16 byte = vm->mem[VRAM+offset];
-
-   if (x % 2 == 0)
-      byte |= (col << 8) & 0xF0; // hb
-   else
-      byte |= col & 0x0F; // lb
-   vm->mem[VRAM + offset] = byte;
-}
-
-void _jmp(MoonVM *vm, u8 dest, u8 hn, u8 ln)
-{
-   u8 address = (hn << 4 & 0xF0) | ln;
-   vm->pc = address;
-}
-
-void _execute(MoonVM *vm, Instruction i)
-{
-   printf("DEBUG: Instruction { op=(%d), dest=(%d), hn=(%d), ln=(%d)\n", i.op, i.dest, i.hn, i.ln);
    switch (i.op)
    {
       case NOP:
          break;
       case ADD:
-         _add(vm, i.dest, i.hn, i.ln); 
+         add(vm, i.dest, i.hn, i.ln); 
          break;
       case LD:
-         _ld(vm, i.dest, i.hn, i.ln);
+         ld(vm, i.dest, i.hn, i.ln);
          break;
       case ST:
-         _st(vm, i.dest, i.hn, i.ln);
+         st(vm, i.dest, i.hn, i.ln);
          break;
       case SPX:
-         _spx(vm, i.dest, i.hn, i.ln);
+         spx(vm, i.dest, i.hn, i.ln);
          break;
       case CLS:
-         _cls(vm);
+         cls(vm);
          break;
       case JMP:
-         _jmp(vm, i.dest, i.hn, i.ln);
+         jmp(vm, i.dest, i.hn, i.ln);
          break;
       case HALT:
          vm->isHalt = true;
          printf("\n\n=========\n\t\tHALT\t\t\n==========\n\n");
-         _dump(vm);
+         MoonVM_dump(vm);
          break;
    }
    
    return;
 }
-
-
