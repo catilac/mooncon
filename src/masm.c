@@ -12,6 +12,11 @@ void sub(MoonVM *vm, u8 dest, u8 hn, u8 ln)
    vm->reg[dest] = vm->reg[hn] - vm->reg[ln];
 }
 
+void indx(MoonVM *vm, u8 dest, u8 hn, u8 ln)
+{
+   vm->I = (dest << 12) | (hn << 8) | ln;
+}
+
 void ld(MoonVM *vm, u8 dest, u8 hn, u8 ln)
 {
    vm->reg[dest] = (hn << 4) | ln;
@@ -19,7 +24,7 @@ void ld(MoonVM *vm, u8 dest, u8 hn, u8 ln)
 
 void st(MoonVM *vm, u8 dest, u8 hn, u8 ln)
 {
-   vm->mem[VRAM + dest] = (hn << 4) | ln;
+   vm->mem[vm->I + dest] = (hn << 4) | ln;
 }
 
 void cls(MoonVM *vm)

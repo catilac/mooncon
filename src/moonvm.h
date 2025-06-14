@@ -8,15 +8,15 @@
 #define DISPLAY_SIZE 2048
 
 #define MEMORY_SIZE 32768
-#define VRAM (2 << 13)
-#define STACK (2<<13)+2048
+#define VRAM 16384
+// #define STACK 16384 + 2048
 
 typedef uint8_t u8;
 typedef int8_t i8;
 typedef uint16_t u16;
 typedef struct _MoonVM
 {
-   u8  I; // index register
+   u16  I; // index register
    i8  reg[16]; // how many registers do we want?
    unsigned int pc; // program counter
 
