@@ -7,6 +7,11 @@ void add(MoonVM *vm, u8 dest, u8 hn, u8 ln)
    vm->reg[dest] = vm->reg[hn] + vm->reg[ln];
 }
 
+void sub(MoonVM *vm, u8 dest, u8 hn, u8 ln)
+{
+   vm->reg[dest] = vm->reg[hn] - vm->reg[ln];
+}
+
 void ld(MoonVM *vm, u8 dest, u8 hn, u8 ln)
 {
    vm->reg[dest] = (hn << 4) | ln;

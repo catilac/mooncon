@@ -7,6 +7,7 @@ typedef enum Op
 {
    NOP,
    ADD, // Add -- add r1, r0, r3
+   SUB,
    LD, // load into register -- ld r15, 0xFF
    ST, // store register contents into memory -- st $0xFFFF, r15
    CLS, // clear screen -- cls
@@ -24,6 +25,7 @@ typedef struct Instruction
 } Instruction;
 
 void add(MoonVM *vm, u8 dest, u8 hn, u8 ln);
+void sub(MoonVM *vm, u8 dest, u8 hn, u8 ln);
 void ld(MoonVM *vm, u8 dest, u8 hn, u8 ln);
 void st(MoonVM *vm, u8 dest, u8 hn, u8 ln);
 void cls(MoonVM *vm);
@@ -33,7 +35,6 @@ void jmp(MoonVM *vm, u8 dest, u8 hn, u8 ln);
 
 //void cmp(MoonVM *vm, u8 dest, u8 hn, u8 ln);
 //void indx(MoonVM *vm, u8 dest, u8 hn, u8 ln);
-//void sub(MoonVM *vm, u8 dest, u8 hn, u8 ln);
 
 //void call(MoonVM *vm, u8 dest, u8 hn, u8 ln);
 
