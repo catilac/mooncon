@@ -47,8 +47,34 @@ void spx(MoonVM *vm, u8 col, u8 xreg, u8 yreg)
    vm->mem[VRAM + offset] = byte;
 }
 
+void cmp(MoonVM *vm, u8 dest, u8 hn, u8 ln)
+{
+   if (vm->reg[hn] == vm->reg[ln])
+      vm->reg[0xF] = 8; // EQ
+   else
+      vm->reg[0xF] = 4; // NEQ
+}
+
 void jmp(MoonVM *vm, u8 dest, u8 hn, u8 ln)
 {
+   // TODO: currently can only jmp 0x00 to 0xFF
+   // Need to think through using I register
    u8 address = (hn << 4 & 0xF0) | ln;
-   vm->pc = address;
+   switch (dest)
+   {
+      case 0: // JMP
+         vm->pc = address;
+         break;
+      case 1: // JEQ
+         if (vm->reg[0xF] == 8)
+            vm->pc = address;
+         break;
+      case 2: // JNE
+         if (vm->reg[0xF] == 4)
+            vm->pc = address;
+         break;
+      default:
+         vm->pc = address;
+         break;
+   }
 }

@@ -13,18 +13,24 @@ MoonVM *MoonVM_init()
    vm->isHalt = false;
    // any other initialization goes here
    // add a program here
-   vm->mem[0] = 0x4400; // ld r4, 0x00
-   vm->mem[1] = 0x413F; // ld r1, 0x3F
+   vm->mem[0] = 0x4415; // ld r4, 0x00
+   vm->mem[1] = 0x4115; // ld r1, 0x00
    vm->mem[2] = 0x4701; // ld r7, 0x01
+   vm->mem[3] = 0x4A0F; // ld rA, 0x0F
 
-   vm->mem[3] = 0x3400; // indx 0x400
-   vm->mem[4] = 0x5BB9; // st 0xB, 0xBB
 
-   vm->mem[5] = 0x1447; // add r4, r4, r7
-   vm->mem[6] = 0x2117; // sub r1, r1, r7
-   vm->mem[7] = 0x7A41; // spx 0x5, 0x4 0x1
+   // Draw to display segment
+   vm->mem[4] = 0x3400; // indx 0x400
+   vm->mem[5] = 0x5BB9; // st 0xB, 0xBB
 
-   vm->mem[8] = 0x8005; // JMP 5
+   // draw loop
+   vm->mem[6] = 0x1447; // add r4, r4, r7
+   vm->mem[7] = 0x1117; // add r1, r1, r7
+   vm->mem[8] = 0x7B41; // spx 0x5, 0x4 0x1
+   vm->mem[9] = 0x804A; // cmp r4 rA
+   vm->mem[10] = 0x9206; // JNE 6
+   vm->mem[11] = 0x7C41; // spx 0x5, 0x4 0x1
+   vm->mem[12] = 0xA000; // HALT
    vm->pc = 0; 
    return vm;
 }
@@ -70,6 +76,7 @@ Instruction decode(u16 bytecode)
 
 void execute(MoonVM *vm, Instruction i)
 {
+   // TODO: Is there a way to not do this
    switch (i.op)
    {
       case NOP:
@@ -93,6 +100,9 @@ void execute(MoonVM *vm, Instruction i)
          break;
       case CLS:
          cls(vm);
+         break;
+      case CMP:
+         cmp(vm, i.dest, i.hn, i.ln);
          break;
       case JMP:
          jmp(vm, i.dest, i.hn, i.ln);
