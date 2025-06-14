@@ -57,15 +57,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
       return SDL_APP_FAILURE;
    }
 
-   // initialize display with random values
-   for (int i=0;i<DISPLAY_SIZE;i++)
-   {
-      u8 high = (rand() % 16) << 4;
-      u8 low = (rand() % 16);
-      //moondisplay[i] = high | low;
-      vm->mem[VRAM+i] = high | low;
-   }
-
    displayTex = SDL_CreateTexture(
                   ctx->renderer, 
                   SDL_PIXELFORMAT_RGBA8888,
@@ -123,23 +114,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
    MoonContext *ctx = (MoonContext *)appstate;
-   /* 
-    *
-    * RUN A HARDWARE CYCLE
-    * * */
-   // 1. get next instruction type stuff
-   // 2. cpu run the instruction
-   // 3. ppu stuff might be the code below:
+
    if (!vm->isHalt)
       MoonVM_fde_cycle(vm);
-
-
-   // for (int i=0;i<DISPLAY_SIZE;i++)
-   // {
-   //    u8 high = (rand() % 16) << 4;
-   //    u8 low = (rand() % 16);
-   //    moondisplay[i] = high | low;
-   // }
 
    Uint32 *pixels = NULL;
    int pitch;
