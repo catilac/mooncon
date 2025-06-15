@@ -10,27 +10,42 @@ MoonVM *MoonVM_init()
 {
    MoonVM *vm = (MoonVM *)malloc(sizeof(MoonVM));
 
+   vm->sp = 0xFF; /* Bottom of stack. Grows down */
    vm->isHalt = false;
-   // any other initialization goes here
-   // add a program here
-   vm->mem[0] = 0x4415; // ld r4, 0x00
-   vm->mem[1] = 0x4115; // ld r1, 0x00
-   vm->mem[2] = 0x4701; // ld r7, 0x01
-   vm->mem[3] = 0x4A0F; // ld rA, 0x0F
 
+   /* START PROG */
+   /* Initialize r4 and r1 */
+   vm->mem[0] = 0x4415; /* ld r4, 0x00 */
+   vm->mem[1] = 0x4115; /* ld r1, 0x00 */
+   vm->mem[2] = 0x4701; /* ld r7, 0x01 */
+   vm->mem[3] = 0x4A0F; /* ld rA, 0x0F */
 
-   // Draw to display segment
-   vm->mem[4] = 0x3400; // indx 0x400
-   vm->mem[5] = 0x5BB9; // st 0xB, 0xBB
+   /* Draw to display segment */
+   vm->mem[4] = 0x3400; /* indx 0x400 */
+   vm->mem[5] = 0x5BB4; /* st 0xB, 0xB4 */
 
-   // draw loop
-   vm->mem[6] = 0x1447; // add r4, r4, r7
-   vm->mem[7] = 0x1117; // add r1, r1, r7
-   vm->mem[8] = 0x7B41; // spx 0x5, 0x4 0x1
-   vm->mem[9] = 0x804A; // cmp r4 rA
-   vm->mem[10] = 0x9206; // JNE 6
-   vm->mem[11] = 0x7C41; // spx 0x5, 0x4 0x1
-   vm->mem[12] = 0xA000; // HALT
+   /* draw loop */
+   vm->mem[6] = 0x1447; /* add r4, r4, r7 */
+   vm->mem[7] = 0x1117; /* add r1, r1, r7 */
+   vm->mem[8] = 0x7B41; /* spx 0x5, 0x4 0x1 */
+   vm->mem[9] = 0x804A; /* cmp r4 rA */
+   vm->mem[10] = 0x9206; /* JNE 6 */
+   vm->mem[11] = 0x7B41; /* spx 0x5, 0x4 0x1 */
+
+   /* call function */
+   vm->mem[12] = 0xA00E; /* call 14 */
+
+   /* Halt Program */
+   vm->mem[13] = 0xF000; /* HALT */
+
+   /* fn draw_hline */
+   vm->mem[14] = 0x4120; /* ld r1 0x20 */
+   vm->mem[15] = 0x4220; /* ld r2 0x20 */
+   vm->mem[16] = 0x7f12; /* spx 0x4 r1 r2 */
+   vm->mem[17] = 0xB000; /* ret */
+
+   /* END PROG */
+
    vm->pc = 0; 
    return vm;
 }
@@ -107,6 +122,15 @@ void execute(MoonVM *vm, Instruction i)
       case JMP:
          jmp(vm, i.dest, i.hn, i.ln);
          break;
+      case CALL:
+         call(vm, i.dest, i.hn, i.ln);
+         break;
+      case RET:
+         ret(vm);
+         break;
+      case RES_0:
+      case RES_1:
+      case RES_2:
       case HALT:
          vm->isHalt = true;
          printf("\n\n=========\n\t\tHALT\t\t\n==========\n\n");

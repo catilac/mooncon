@@ -3,27 +3,40 @@
 
 #include "moonvm.h"
 
+/* 
+ * We have 15 operations 0x0 -> 0xF.
+ * One is Reserved
+ */
 typedef enum Op
 {
    NOP,
-   ADD, // Add -- add r1, r0, r3
+   ADD,
    SUB,
    INDX,
-   LD, // load into register -- ld r15, 0xFF
-   ST, // store register contents into memory -- st $0xFFFF, r15
-   CLS, // clear screen -- cls
-   SPX, // set a pixel --  spx 0x4 x y
+   LD,
+   ST,
+   CLS,
+   SPX,
    CMP,
-   JMP, // JMP
-   HALT, // halt program
+   JMP,
+   CALL,
+   RET,
+   RES_0, /* Reserved */
+   RES_1, /* Reserved */
+   RES_2, /* Reserved */
+   HALT,
 } Op;
 
+/* 
+ * We are only using 4 bits of
+ * the u8 defined for `hn` and `ln`
+ */
 typedef struct Instruction
 {
    Op op;
    u8 dest;
-   u8 hn; // high nibble
-   u8 ln; // low nibble
+   u8 hn; /* high nibble */
+   u8 ln; /* low nibble */
 } Instruction;
 
 void add(MoonVM *vm, u8 dest, u8 hn, u8 ln);
@@ -38,9 +51,7 @@ void spx(MoonVM *vm, u8 col, u8 xreg, u8 yreg);
 void cmp(MoonVM *vm, u8 dest, u8 hn, u8 ln);
 void jmp(MoonVM *vm, u8 dest, u8 hn, u8 ln);
 
-//void call(MoonVM *vm, u8 dest, u8 hn, u8 ln);
-// void push(MoonVM *vm, u8 dest, u8 hn, u8 ln);
-// void pop(MoonVM *vm, u8 dest, u8 hn, u8 ln);
-
+void call(MoonVM *vm, u8 dest, u8 hn, u8 ln);
+void ret(MoonVM *vm);
 
 #endif

@@ -41,7 +41,7 @@ void spx(MoonVM *vm, u8 col, u8 xreg, u8 yreg)
    u16 byte = vm->mem[VRAM+offset];
 
    if (x % 2 == 0)
-      byte |= (col << 8) & 0xF0; // hb
+      byte |= (col << 4) & 0xF0; // hb
    else
       byte |= col & 0x0F; // lb
    vm->mem[VRAM + offset] = byte;
@@ -57,8 +57,9 @@ void cmp(MoonVM *vm, u8 dest, u8 hn, u8 ln)
 
 void jmp(MoonVM *vm, u8 dest, u8 hn, u8 ln)
 {
-   // TODO: currently can only jmp 0x00 to 0xFF
-   // Need to think through using I register
+   /* TODO: currently can only jmp 0x00 to 0xFF
+    * Need to think through using I register 
+    */
    u8 address = (hn << 4 & 0xF0) | ln;
    switch (dest)
    {
@@ -77,4 +78,21 @@ void jmp(MoonVM *vm, u8 dest, u8 hn, u8 ln)
          vm->pc = address;
          break;
    }
+}
+
+void call(MoonVM *vm, u8 dest, u8 hn, u8 ln)
+{
+   u16 addr = (dest << 12) | (hn << 8) | ln;
+   /* decrement stack pointer */
+   vm->sp--;
+   /* push the current PC */
+   vm->mem[STACK+vm->sp] = vm->pc;
+   /* jmp to address */
+   vm->pc = addr;
+}
+
+void ret(MoonVM *vm)
+{
+   vm->pc = vm->mem[STACK+vm->sp]; /* update pc */
+   vm->sp++; /* increment sp */
 }
