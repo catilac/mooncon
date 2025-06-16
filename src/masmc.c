@@ -3,40 +3,12 @@
 #include "masmc.h"
 #include "masm.h"
 #include "moonvm.h"
+#include "helpers.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
-char *readFile(const char *filename)
-{
-
-   FILE *fp = fopen(filename, "r");
-   if (fp == NULL)
-   {
-      printf("Error opening input file\n!");
-      return NULL;
-   }
-
-   fseek(fp, 0, SEEK_END);
-   long len = ftell(fp);
-   rewind(fp);
-
-   char *buffer = (char *)malloc(len);
-
-   if (!buffer)
-   {
-      fprintf(stderr, "Could not allocate buffer memory!\n");
-      fclose(fp);
-      return NULL;
-   }
-
-   fread(buffer, 1, len, fp);
-   fclose(fp);
-
-   return buffer;
-}
 
 char *string_before_comment(char *line)
 {
@@ -174,25 +146,29 @@ u16 parse_line(char *line)
    return bytecode;
 }
 
-void compile(const char *input)
+void compile(MoonVM *vm, const char *input)
 {
-   printf("input: %s\n======\n", input);
 
-   char *buf = readFile(input);
-
-   if (!buf) return; /* TODO: Obviously, No */
-
+   char *copy_input = (char *)malloc(strlen(input) + 1);
+   strcpy(copy_input, input);
    char *line_save_ptr = NULL;
-   char *line = strtok_r(buf, "\n", &line_save_ptr);
+   char *line = strtok_r(copy_input, "\n", &line_save_ptr);
    u16 pc = 0;
    while (line != NULL)
    {
       u16 instruction = parse_line(line);
-      printf("pc(%d) # %04x -- %s\n", pc++, instruction, line);
+
+      /* TODO: this isn't ideal but will work for now */
+      if (instruction > 0)
+      {
+         vm->mem[pc] = instruction;
+         printf("pc(%d) # %04x -- %s\n", pc++, instruction, line);
+      }
+
       line = strtok_r(NULL, "\n", &line_save_ptr);
    }
 
-   free(buf);
-   buf = NULL;
+   free(copy_input);
+
    return;
 }

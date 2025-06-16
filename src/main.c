@@ -8,8 +8,8 @@
 #include "moonvm.h"
 #include "masmc.h"
 #include "moon_context.h"
-#include "lua.h"
 #include "editbox.h"
+#include "helpers.h"
 
 SDL_Color palette[16] = {
     {7, 3, 4, 255},       // #070304
@@ -41,20 +41,15 @@ static SDL_FRect editRect = {400, 0, 400, 600};
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
 
-   /* TODO: Command line file input */
-   for (int i = 0; i < argc; i++)
-      printf("%s\n", argv[i]);
-
-   if (argc == 2)
-   {
-      compile(argv[1]);
-      return SDL_APP_SUCCESS;
-   }
 
 
    MoonContext *ctx = MoonContextInit();
    if (!ctx)
       return SDL_APP_FAILURE;
+
+   char *buf = "";
+   if (argc == 2)
+      buf = readFile(argv[1]);
 
    *appstate = ctx;
 
@@ -87,13 +82,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
                            TTF_CreateRendererTextEngine(ctx->renderer),
                            font, &editRect);
    EditBox_SetFocus(editor, true);
-   EditBox_Insert(editor, ctx->program);
-
-   /* Call Init() */
-   if (Lua_Call(ctx->L, "init") != 0) {
-      SDL_Log("ERROR calling init\n");
-      return SDL_APP_FAILURE;
-   }
+   EditBox_Insert(editor, buf);
 
    return SDL_APP_CONTINUE;
 }
@@ -107,7 +96,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
    {
       case SDL_EVENT_KEY_DOWN:
          if (event->key.key == SDLK_R && (event->key.mod & SDL_KMOD_CTRL))
-            Lua_Reload(ctx);
+            MoonVM_compile(vm, ctx->program);
          else
             EditBox_HandleEvent(editor, event);
          break;
@@ -159,6 +148,11 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
    SDL_RenderTexture(ctx->renderer, displayTex, NULL, NULL);
 
+   SDL_SetRenderDrawColor(ctx->renderer, 0xCC, 0xCC, 0xCC, 0xFF);
+   SDL_RenderFillRect(ctx->renderer, &editRect);
+   TTF_SetTextColor(editor->text, 0, 0, 0, 255);
+   EditBox_Draw(editor);
+
    SDL_RenderPresent(ctx->renderer);
 
    return SDL_APP_CONTINUE;
@@ -168,6 +162,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
    MoonContext *ctx = (MoonContext *)appstate;
    free(vm);
-   if (ctx)
+   if (ctx) {
       lua_close(ctx->L);
+   }
 }

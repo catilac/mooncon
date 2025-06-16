@@ -27,5 +27,6 @@ typedef struct _MoonVM
 
 MoonVM *MoonVM_init();
 void MoonVM_fde_cycle(); /* rename to MoonVM_run_cycle ? */
+void MoonVM_compile(MoonVM *vm, const char *input);
 
 #endif
