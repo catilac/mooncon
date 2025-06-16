@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include "moonvm.h"
+#include "masmc.h"
 #include "moon_context.h"
 #include "lua.h"
 #include "editbox.h"
@@ -29,7 +30,6 @@ SDL_Color palette[16] = {
     {218, 226, 234, 255}, // #dae2ea
 };
 
-// TODO: swap this out and use the VM
 static SDL_Texture *displayTex = NULL;
 
 static MoonVM *vm;
@@ -40,6 +40,18 @@ static SDL_FRect editRect = {400, 0, 400, 600};
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
+
+   /* TODO: Command line file input */
+   for (int i = 0; i < argc; i++)
+      printf("%s\n", argv[i]);
+
+   if (argc == 2)
+   {
+      compile(argv[1]);
+      return SDL_APP_SUCCESS;
+   }
+
+
    MoonContext *ctx = MoonContextInit();
    if (!ctx)
       return SDL_APP_FAILURE;
@@ -156,5 +168,6 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
    MoonContext *ctx = (MoonContext *)appstate;
    free(vm);
-   lua_close(ctx->L);
+   if (ctx)
+      lua_close(ctx->L);
 }
