@@ -1,4 +1,7 @@
 mooncon
+
+compile_commands.json
+
 # Prerequisites
 *.d
 
