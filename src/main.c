@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "moonvm.h"
 #include "masmc.h"
@@ -37,6 +38,7 @@ static MoonVM *vm;
 static EditBox *editor = NULL;
 static TTF_Font *font = NULL;
 static SDL_FRect editRect = {400, 0, 400, 600};
+static bool editor_visible = true;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
@@ -97,6 +99,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
       case SDL_EVENT_KEY_DOWN:
          if (event->key.key == SDLK_R && (event->key.mod & SDL_KMOD_CTRL))
             MoonVM_compile(vm, ctx->program);
+         else if (event->key.key == SDLK_W && (event->key.mod & SDL_KMOD_CTRL))
+            editor_visible = !editor_visible;
          else
             EditBox_HandleEvent(editor, event);
          break;
@@ -148,10 +152,13 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
    SDL_RenderTexture(ctx->renderer, displayTex, NULL, NULL);
 
-   SDL_SetRenderDrawColor(ctx->renderer, 0xCC, 0xCC, 0xCC, 0xFF);
-   SDL_RenderFillRect(ctx->renderer, &editRect);
-   TTF_SetTextColor(editor->text, 0, 0, 0, 255);
-   EditBox_Draw(editor);
+   if (editor_visible)
+   {
+      SDL_SetRenderDrawColor(ctx->renderer, 0xCC, 0xCC, 0xCC, 0xFF);
+      SDL_RenderFillRect(ctx->renderer, &editRect);
+      TTF_SetTextColor(editor->text, 0, 0, 0, 255);
+      EditBox_Draw(editor);
+   }
 
    SDL_RenderPresent(ctx->renderer);
 
