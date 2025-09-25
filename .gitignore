@@ -57,3 +57,8 @@ dkms.conf
 
 # clangd
 .cache/
+
+
+# Added by cargo
+
+/target
