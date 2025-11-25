@@ -1,35 +1,8 @@
-// We have 15 operations 0x0 -> 0xF.
-// One is Reserved
-#[derive(Debug)]
-enum Op {
-    Nop,
-    Add,
-    Sub,
-    Indx,
-    Ld,
-    St,
-    Cls,
-    Spx,
-    Jmp,
-    Call,
-    Ret,
-    Res0, // Reserved
-    Res1, // Reserved
-    Res2, // Reserved
-    Halt,
-}
+// lib.rs
 
-#[derive(Debug)]
-struct Instruction {
-    op: Op,
-    dest: u8,
-    hn: u8,
-    ln: u8,
-}
+mod isa;
 
-fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+use isa::{Instruction, Op};
 
 pub struct CPU {
     i: u16,
@@ -69,7 +42,15 @@ impl CPU {
         }
     }
 
-    fn execute(&self, _instr: Instruction) {}
+    fn execute(&self, instr: Instruction) {
+        match instr.op {
+            Op::Nop => (),
+
+            default => {
+                todo!("Not Implemented")
+            }
+        }
+    }
 }
 
 #[cfg(test)]
