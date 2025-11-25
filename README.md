@@ -18,7 +18,7 @@ Fantasy console
 # Development Instructions
 
 ```
-git clone git@github.com:catilac/mooncon.git
+git clone git@codeberg.org/softmoonworld/mooncon.git
 cd mooncon
 cargo run
 ```
