@@ -48,10 +48,10 @@ impl CPU {
         }
     }
 
-    pub fn fde_cycle(cpu: &mut CPU, mem: [u16; 32768]) {
-        let m = cpu.fetch(mem);
-        let instruction = cpu.decode(m);
-        cpu.execute(instruction);
+    pub fn fde_cycle(&mut self, mem: [u16; 32768]) {
+        let m = self.fetch(mem);
+        let instruction = self.decode(m);
+        self.execute(instruction);
     }
 
     fn fetch(&mut self, mem: [u16; 32768]) -> u16 {
@@ -79,7 +79,7 @@ mod tests {
     #[test]
     fn fde_cycle() {
         let mut cpu = CPU::init();
-        CPU::fde_cycle(&mut cpu, [0u16; 32768]);
+        cpu.fde_cycle([0u16; 32768]);
         assert!(true);
     }
 }
