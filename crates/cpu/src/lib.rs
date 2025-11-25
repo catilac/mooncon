@@ -6,7 +6,7 @@ use isa::{Instruction, Op};
 
 pub struct CPU {
     i: u16,
-    reg: [i8; 16],
+    reg: [u8; 16],
     pc: u16,
     sp: u8,
 }
@@ -34,17 +34,33 @@ impl CPU {
     }
 
     fn decode(&self, m: u16) -> Instruction {
+        let opcode: u8 = ((m & 0xF000) >> 12) as u8;
+        let dest: u8 = ((m & 0xF00) >> 8) as u8;
+        let hn: u8 = ((m & 0xF0) >> 4) as u8;
+        let ln: u8 = (m & 0xF) as u8;
         Instruction {
             op: Op::Nop,
-            dest: 0,
-            hn: 0,
-            ln: 0,
+            dest,
+            hn,
+            ln,
         }
     }
 
-    fn execute(&self, instr: Instruction) {
-        match instr.op {
+    fn execute(&mut self, i: Instruction) {
+        match i.op {
             Op::Nop => (),
+            Op::Add => {
+                self.reg[i.dest as usize] = self.reg[i.hn as usize] + self.reg[i.ln as usize];
+            }
+            Op::Indx => {
+                //vm->I = (dest << 12) | (hn << 8) | ln;
+                // TODO: is this the actual way to express this?
+                self.i = ((i.dest as u16) << 12) | ((i.hn as u16) << 8) | i.ln as u16;
+            }
+            Op::St => {
+                // vm->reg[dest] = (hn << 4) | ln;
+                self.reg[i.dest as usize] = (i.hn << 4) | i.ln;
+            }
 
             default => {
                 todo!("Not Implemented")
