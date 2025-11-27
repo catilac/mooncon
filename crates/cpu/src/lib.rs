@@ -2,7 +2,7 @@
 
 mod isa;
 
-use isa::{Instruction, Op};
+use isa::Instruction;
 
 pub struct CPU {
     i: u16,
@@ -21,62 +21,35 @@ impl CPU {
         }
     }
 
-    pub fn fde_cycle(&mut self, mem: [u16; 32768]) {
+    pub fn fde_cycle(&mut self, mem: &mut [u16; 32768]) {
         let m = self.fetch(mem);
         let instruction = self.decode(m);
-        self.execute(instruction);
+        self.execute(instruction, mem);
     }
 
-    fn fetch(&mut self, mem: [u16; 32768]) -> u16 {
+    fn fetch(&mut self, mem: &[u16; 32768]) -> u16 {
         let m: u16 = mem[self.pc as usize];
         self.pc += 1;
         return m;
     }
 
     fn decode(&self, m: u16) -> Instruction {
-        let opcode: u8 = ((m & 0xF000) >> 12) as u8;
-        let dest: u8 = ((m & 0xF00) >> 8) as u8;
-        let hn: u8 = ((m & 0xF0) >> 4) as u8;
-        let ln: u8 = (m & 0xF) as u8;
-        Instruction {
-            op: Op::Nop,
-            dest,
-            hn,
-            ln,
-        }
+        return Instruction::from(m);
     }
 
-    fn execute(&mut self, i: Instruction) {
-        match i.op {
-            Op::Nop => (),
-            Op::Add => {
-                self.reg[i.dest as usize] = self.reg[i.hn as usize] + self.reg[i.ln as usize];
-            }
-            Op::Indx => {
-                //vm->I = (dest << 12) | (hn << 8) | ln;
-                // TODO: is this the actual way to express this?
-                self.i = ((i.dest as u16) << 12) | ((i.hn as u16) << 8) | i.ln as u16;
-            }
-            Op::St => {
-                // vm->reg[dest] = (hn << 4) | ln;
-                self.reg[i.dest as usize] = (i.hn << 4) | i.ln;
-            }
-
-            default => {
-                todo!("Not Implemented")
-            }
-        }
+    fn execute(&mut self, i: Instruction, mem: &mut [u16; 32768]) {
+        i.execute(self, mem);
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::CPU;
 
     #[test]
     fn fde_cycle() {
         let mut cpu = CPU::init();
-        cpu.fde_cycle([0u16; 32768]);
+        cpu.fde_cycle(&mut [0u16; 32768]);
         assert!(true);
     }
 }
