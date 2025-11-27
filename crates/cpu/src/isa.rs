@@ -97,7 +97,7 @@ impl Instruction {
             // Op::Res1 => {}
             // Op::Res2 => {}
             // Op::Res3 => {}
-            // Op::Halt => {}
+            Op::Halt => { cpu.is_halted = true }
             _ => panic!("Not implemented")
         }
     }

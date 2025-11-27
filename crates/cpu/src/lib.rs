@@ -9,6 +9,7 @@ pub struct CPU {
     reg: [u8; 16],
     pc: u16,
     sp: u8,
+    is_halted: bool,
 }
 
 impl CPU {
@@ -18,6 +19,7 @@ impl CPU {
             reg: [0; 16],
             pc: 0,
             sp: 0xFF,
+            is_halted: false,
         }
     }
 
