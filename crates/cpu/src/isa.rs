@@ -4,8 +4,8 @@ use crate::CPU;
 
 // we want to implement the instructions.
 
-// We have 15 operations 0x0 -> 0xF.
-#[derive(Debug)]
+// We have 16 operations 0x0 -> 0xF.
+#[derive(Debug, PartialEq)]
 pub enum Op {
     Nop,
     Add,
@@ -76,15 +76,16 @@ impl Instruction {
     pub fn execute(&self, cpu: &mut CPU, mem: &mut [u16; 32768]) {
         let (dest, hn, ln) = (self.dest as usize, self.hn as usize, self.ln as usize);
         match self.op {
-            Op::Nop => ()
-            Op::Add => { cpu.reg[dest] = cpu.reg[hn] + cpu.reg[ln] }
-            Op::Sub => { cpu.reg[dest] = cpu.reg[hn] - cpu.reg[ln] }
+            Op::Nop => {}
+            Op::Add => cpu.reg[dest] = cpu.reg[hn] + cpu.reg[ln],
+            Op::Sub => cpu.reg[dest] = cpu.reg[hn] - cpu.reg[ln],
             Op::Indx => {
-                cpu.i = (((self.dest as u16) & 0xF)  << 12) | (((self.hn as u16) & 0xF) << 8) | ((self.ln as u16) & 0xF)
+                cpu.i = (((self.dest as u16) & 0xF) << 12)
+                    | (((self.hn as u16) & 0xF) << 8)
+                    | (((self.ln as u16) & 0xF) << 4)
             }
             // Op::Ld => {}
             Op::St => {
-                // vm->mem[vm->I + dest] = (hn << 4) | ln;
                 let address = cpu.i + self.dest as u16;
                 mem[address as usize] = ((self.hn << 4) | self.ln) as u16;
             }
@@ -93,12 +94,76 @@ impl Instruction {
             // Op::Jmp => {}
             // Op::Call => {}
             // Op::Ret => {}
-            // Op::Res0 => {}
-            // Op::Res1 => {}
-            // Op::Res2 => {}
-            // Op::Res3 => {}
-            Op::Halt => { cpu.is_halted = true }
-            _ => panic!("Not implemented")
+            Op::Halt => cpu.is_halted = true,
+            _ => panic!("Not implemented"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn instruction_from_u16() {
+        let mem: u16 = 0x14A1;
+        let instr = Instruction::from(mem);
+        assert_eq!(instr.op, Op::Add);
+        assert_eq!(instr.dest, 4);
+        assert_eq!(instr.hn, 10);
+        assert_eq!(instr.ln, 1);
+    }
+
+    #[test]
+    fn test_nop() {
+        let mut cpu = CPU::init();
+        let mut mem = [0u16; 0x8000];
+        let nop = Instruction::from(0x0000);
+        nop.execute(&mut cpu, &mut mem);
+    }
+
+    #[test]
+    fn test_add() {
+        let mut cpu = CPU::init();
+        cpu.reg[2] = 0;
+        cpu.reg[4] = 4;
+        let mut mem = [0u16; 0x8000];
+        let add = Instruction::from(0x1244); // add r2, r4, r4
+        add.execute(&mut cpu, &mut mem);
+
+        assert_eq!(cpu.reg[2], 8);
+    }
+
+    #[test]
+    fn test_sub() {
+        let mut cpu = CPU::init();
+        cpu.reg[2] = 0;
+        cpu.reg[4] = 4;
+        cpu.reg[1] = 3;
+        let mut mem = [0u16; 0x8000];
+        let sub = Instruction::from(0x2214); // sub r2, r1, r4
+        sub.execute(&mut cpu, &mut mem);
+
+        assert_eq!(cpu.reg[2], 0);
+    }
+
+    #[test]
+    fn test_indx() {
+        let mut cpu = CPU::init();
+        let mut mem = [0u16; 0x8000];
+        let indx = Instruction::from(0x345A); // indx 0x4, 0x5, 0xA
+        indx.execute(&mut cpu, &mut mem);
+        assert_eq!(cpu.i, 0x45A0);
+    }
+
+    #[test]
+    fn test_st() {
+        let mut cpu = CPU::init();
+        let mut mem = [0u16; 0x8000];
+        Instruction::from(0x345A).execute(&mut cpu, &mut mem); //indx 0x4, 0x5, 0xA
+        assert_eq!(cpu.i, 0x45A0);
+
+        Instruction::from(0x5433).execute(&mut cpu, &mut mem); // st 0x4, 0x3, 0x3
+        assert_eq!(mem[0x45A4], 0x33);
     }
 }
